@@ -38,7 +38,6 @@ class ChessLogic:
                     for i in range(int(x)):
                         if i > 0: extra += 1
                         self.board[indy][indx + extra] = Empty()
-                        print(f"{indy, indx + extra} = empty")
                         
                 elif x == "R":
                     self.board[indy][indx + extra] = Rook((indx + extra, indy), 0)
@@ -170,7 +169,6 @@ class ChessLogic:
                             tempboard[ymove][xmove] = tempboard[y.y][y.x]
                             tempboard[y.y][y.x] = Empty()
                             if not tempboard[kingposy][kingposx].is_in_check(tempboard):
-                                print(f"{y} at {y.x, y.y} can move to {move}, available moves: {y.get_moves(self.board)}")
                                 return False
         return True
 
