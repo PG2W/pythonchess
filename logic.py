@@ -8,6 +8,7 @@ class ChessLogic:
         self.player_turn = 0
         # Status bestemmer om der er en runde i gang: 1 for i gang, 3 for spillet er over og hvide brikker har vundet og 2 for sorte brikker har vundet
         self.STATUS = 1
+        self.currentMoveNo = 0
 
     def reset_game(self):
         self.player_turn = 0
@@ -52,9 +53,17 @@ class ChessLogic:
                 elif x == "P":
                     self.board[indy][indx + extra] = Pawn((indx + extra, indy), 0)
 
+    def update_pawn_currentMoveNo(self):
+        for x in self.board:
+            for y in x:
+                if isinstance(y, Pawn):
+                    y.currentMoveNo = self.currentMoveNo
+
     def move_piece(self, piece: tuple, newpos: tuple):
         x, y = piece
         newx, newy = newpos
+        # if isinstance(self.board[y][x], Pawn):
+        #     self.board[y][x].setCurrentMoveNo(self.currentMoveNo)
 
         # Hvis det ikke er en konge og den nye position ikke er i check, flyt brikken
         if (newpos in self.board[y][x].get_moves(self.board)
@@ -75,10 +84,29 @@ class ChessLogic:
                         self.promote_to_queen(self.board[y][x])
 
                 # Opdaterer brikkens position
-                self.board[newy][newx] = self.board[y][x]
-                self.board[y][x] = Empty()
-                self.board[newy][newx].move((newx, newy))
-                self.player_turn = 1 if self.player_turn == 0 else 0
+                #En passant
+                if isinstance(self.board[y][x], Pawn) and isinstance(self.board[newy][newx], Empty) and newx != x:
+                   # if (newx == x + 1 and newy == y + 1) or (newx == x - 1 and newy == y + 1) or (newx == x + 1 and newy == y - 1) or (newx == x - 1 and newy == y - 1):
+                    self.board[newy][newx] = self.board[y][x]
+                    self.board[y][x] = Empty()
+                    self.board[y][newx] = Empty() 
+                    # else: self.board[y][x+newx] = Empty()
+                    self.board[newy][newx].move((newx, newy))
+                    self.board[newy][newx].last_moved = self.currentMoveNo
+                    self.player_turn = 1 if self.player_turn == 0 else 0
+                    self.currentMoveNo += 1
+                    self.update_pawn_currentMoveNo()           
+                    
+
+                #Normalt
+                else:
+                    self.board[newy][newx] = self.board[y][x]
+                    self.board[y][x] = Empty()
+                    self.board[newy][newx].move((newx, newy))
+                    self.board[newy][newx].last_moved = self.currentMoveNo
+                    self.player_turn = 1 if self.player_turn == 0 else 0
+                    self.currentMoveNo += 1
+                    self.update_pawn_currentMoveNo()
 
         # Hvis det er en konge og den nye position er valid, flyt brikken
         elif isinstance(self.board[y][x], King) and newpos in self.board[y][
@@ -87,7 +115,11 @@ class ChessLogic:
             self.board[newy][newx] = self.board[y][x]
             self.board[y][x] = Empty()
             self.board[newy][newx].move((newx, newy))
+            self.board[newy][newx].last_moved = self.currentMoveNo
             self.player_turn = 1 if self.player_turn == 0 else 0
+            self.currentMoveNo += 1
+            self.update_pawn_currentMoveNo()
+
 
         # Rokade
         elif (isinstance(self.board[y][x], King)
@@ -133,7 +165,10 @@ class ChessLogic:
                 self.board[y][x].move(kingmove)
                 self.board[y][kingmove[0]] = self.board[y][x]
                 self.board[y][x] = Empty()
+                self.board[newy][newx].last_moved = self.currentMoveNo
                 self.player_turn = 1 if self.player_turn == 0 else 0
+                self.currentMoveNo += 1
+                self.update_pawn_currentMoveNo()
 
 
         if self.check_for_check():

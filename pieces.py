@@ -15,6 +15,8 @@ class Piece(ABC):
         if self.color not in availablecolors:
             raise ValueError("Invalid color, use 0 for white and 1 for black")
         self.has_moved = False
+        self.moves_made = 0
+        self.last_moved = 0
         self.image = ""
         
     @abstractmethod
@@ -25,7 +27,7 @@ class Piece(ABC):
         self.pos = newpos
         self.x, self.y = newpos
         self.has_moved = True
-
+        self.moves_made += 1
 
 class Empty(Piece):
     def __init__(self, pos=(0, 0), color=-1):
@@ -43,6 +45,12 @@ class Pawn(Piece):
     def __init__(self, pos: tuple, color: int):
         super().__init__(pos, color)
         self.image = "pieces/pawn" + str(self.color) + ".png"
+        self.currentMoveNo = 0
+
+
+    def setCurrentMoveNo(self, moveNo):
+        self.currentMoveNo = moveNo
+
 
     def get_moves(self, board):
         validmoves = []
@@ -68,33 +76,52 @@ class Pawn(Piece):
                     and not isinstance(board[self.y + 1][self.x - 1], Empty)
                         and board[self.y + 1][self.x - 1].color != self.color):
                     validmoves.append((self.x - 1, self.y + 1))
+            
+            #en passant
+            if self.y == 4:
+                if self.x + 1 < 8 and isinstance(board[self.y][self.x + 1], Pawn) and board[self.y][self.x + 1].color != self.color:
+                    if board[self.y][self.x + 1].moves_made == 1 and board[self.y][self.x + 1].last_moved == self.currentMoveNo - 1:
+                        if isinstance(board[self.y + 1][self.x + 1], Empty):
+                            validmoves.append((self.x + 1, self.y + 1))
+
+                if self.x - 1 >= 0 and isinstance(board[self.y][self.x - 1], Pawn) and board[self.y][self.x - 1].color != self.color:
+                    if board[self.y][self.x - 1].moves_made == 1 and board[self.y][self.x - 1].last_moved == self.currentMoveNo - 1:
+                        if isinstance(board[self.y + 1][self.x - 1], Empty):
+                            validmoves.append((self.x - 1, self.y + 1))
 
         else:
             if not self.has_moved:
                 if isinstance(board[self.y - 2][self.x], Empty) and isinstance(
-                    board[self.y - 1][self.x], Empty
-                ):
+                    board[self.y - 1][self.x], Empty):
                     validmoves.append((self.x, self.y - 2))
 
             if self.y - 1 >= 0:
                 if isinstance(board[self.y - 1][self.x], Empty):
                     validmoves.append((self.x, self.y - 1))
 
-                if (
-                    self.x + 1 < 8
+                if (self.x + 1 < 8
                     and isinstance(board[self.y - 1][self.x + 1], Piece)
                     and not isinstance(board[self.y - 1][self.x + 1], Empty)
-                    and board[self.y - 1][self.x + 1].color != self.color
-                ):
+                    and board[self.y - 1][self.x + 1].color != self.color):
                     validmoves.append((self.x + 1, self.y - 1))
 
-                if (
-                    self.x - 1 >= 0
+                if (self.x - 1 >= 0
                     and isinstance(board[self.y - 1][self.x - 1], Piece)
                     and not isinstance(board[self.y - 1][self.x - 1], Empty)
-                    and board[self.y - 1][self.x - 1].color != self.color
-                ):
+                    and board[self.y - 1][self.x - 1].color != self.color):
                     validmoves.append((self.x - 1, self.y - 1))
+                
+            #en passant
+            if self.y == 3:
+                if self.x + 1 < 8 and isinstance(board[self.y][self.x + 1], Pawn) and board[self.y][self.x + 1].color != self.color:
+                    if board[self.y][self.x + 1].moves_made == 1 and board[self.y][self.x + 1].last_moved == self.currentMoveNo - 1:
+                        if isinstance(board[self.y - 1][self.x + 1], Empty):
+                            validmoves.append((self.x + 1, self.y - 1))
+
+                if self.x - 1 >= 0 and isinstance(board[self.y][self.x - 1], Pawn) and board[self.y][self.x - 1].color != self.color:
+                    if board[self.y][self.x - 1].moves_made == 1 and board[self.y][self.x - 1].last_moved == self.currentMoveNo - 1:
+                        if isinstance(board[self.y - 1][self.x - 1], Empty):
+                            validmoves.append((self.x - 1, self.y - 1))
 
         return validmoves
 

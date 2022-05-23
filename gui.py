@@ -73,6 +73,7 @@ class GUI(Frame):
                 self.game.move_piece(self.pieceTo[0], pos)
                 self.refresh(self.pieceTo)
 
+
         if self.game.player_turn == self.board[y][x].color:
             # color the squares that the piece can move to
 
@@ -83,6 +84,11 @@ class GUI(Frame):
         elif isinstance(self.board[self.pieceTo[0][1]][self.pieceTo[0][0]].get_moves(self.board), list):
             if pos in self.board[self.pieceTo[0][1]][self.pieceTo[0][0]].get_moves(self.board) and self.pieceTo[0] != (-1, -1):
                 self.pieceTo[1] = pos
+
+                #En passant
+                if isinstance(self.board[self.pieceTo[0][1]][self.pieceTo[0][0]], Pawn) and isinstance(self.board[y][x], Empty) and x != self.pieceTo[0][0]:
+                    self.pieceTo.append((x, self.pieceTo[0][1]))
+
                 self.game.move_piece(self.pieceTo[0], self.pieceTo[1])
                 self.refresh(self.pieceTo)
 
