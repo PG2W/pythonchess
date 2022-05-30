@@ -368,8 +368,7 @@ class King(Piece):
                 (self.x - 1, self.y - 1),
             )
         )
-        if target in possible_moves:
-            return True
+        return target in possible_moves
 
     def check_if_targeted_at_pos(self, board: list, pos: tuple):
         targetx, targety = pos

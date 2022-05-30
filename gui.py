@@ -14,7 +14,7 @@ class GUI(Frame):
         self.size = size
         self.color1 = color1
         self.color2 = color2
-
+  
         self.game = ChessLogic()
         self.board = self.game.board
 
@@ -110,15 +110,11 @@ class GUI(Frame):
                     color = self.color2
                 else:
                     color = self.color1
-                self.images[squarenumber] = PhotoImage(
-                    file=self.game.board[row][col].image
-                ).subsample(2, 2)
+                self.images[squarenumber] = PhotoImage(file=self.game.board[row][col].image).subsample(2, 2)
                 self.squareButton[squarenumber] = Button(
                     self.top,
                     command=(
-                        lambda pos=(col, row): self.commandHandler(
-                            pos
-                        )
+                        lambda pos=(col, row): self.commandHandler(pos)
                     ),
                     width=self.size,
                     height=self.size,

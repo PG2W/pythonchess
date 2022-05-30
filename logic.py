@@ -6,7 +6,8 @@ class ChessLogic:
         self.board = [[Empty() for x in range(8)] for y in range(8)]
         # player_turn bestemmer hvilken spillerens tur det er: 0 for hvid og 1 for sort
         self.player_turn = 0
-        # Status bestemmer om der er en runde i gang: 1 for i gang, 3 for spillet er over og hvide brikker har vundet og 2 for sorte brikker har vundet
+        # Status bestemmer om der er en runde i gang:
+        # 1 for i gang, 3 for spillet er over og hvide brikker har vundet og 2 for sorte brikker har vundet
         self.STATUS = 1
         self.currentMoveNo = 0
 
@@ -17,7 +18,6 @@ class ChessLogic:
 
         #fenlist er en liste af strings, hver string er en linje i fen-notationen
         fenlist = fen.split("/")
-
         
         for indy, y in enumerate(fenlist):
             extra = 0
@@ -62,8 +62,6 @@ class ChessLogic:
     def move_piece(self, piece: tuple, newpos: tuple):
         x, y = piece
         newx, newy = newpos
-        # if isinstance(self.board[y][x], Pawn):
-        #     self.board[y][x].setCurrentMoveNo(self.currentMoveNo)
 
         # Hvis det ikke er en konge og den nye position ikke er i check, flyt brikken
         if (newpos in self.board[y][x].get_moves(self.board)
